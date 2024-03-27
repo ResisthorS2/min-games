@@ -40,7 +40,7 @@ double findResistance(double valeur) {
 }
 
 // Fonction principale du jeu
-int MiniGame::play_resistanceGame() {
+int MiniGame::play_resistanceGame(int key[6], int cell_type, Engine* engine) {
     
 
     while(1)
@@ -68,16 +68,24 @@ int MiniGame::play_resistanceGame() {
         bool mode = BASE;
         int index_base = 0;
         int index_mult = 0;
+        
+        std::string raw_msg;
         while(1)
         {
-            if(!RcvFromSerial(arduino, raw_msg)){
+            //if(!RcvFromSerial(arduino, raw_msg)){
+            if(engine.RcvFromSerial(engine->arduino, raw_msg)){
                 std::cerr << "Erreur lors de la reception du message. " << std::endl;
             }
+            //if(raw_msg.size()>0){
             if(raw_msg.size()>0){
-                j_msg_rcv = json::parse(raw_msg);
-                std::cout << "Message de l'Arduino: " << j_msg_rcv << std::endl;
+                engine->j_msg_rcv = json::parse(raw_msg);
+                std::cout << "Message de l'Arduino: " << engine->j_msg_rcv << std::endl;
             }
-            if(j_msg_rcv["btn_180"] == "HIGH")
+
+            engine.updateComponents(j_msg_rcv);
+
+            //if(j_msg_rcv["btn_180"] == "HIGH")
+            if(*engine->input->btn_180 == "HIGH")
             {
                 if(mode == BASE)
                 {
@@ -95,7 +103,8 @@ int MiniGame::play_resistanceGame() {
                 }
             }
 
-            if(j_msg_rcv["btn_up"] == "HIGH")
+            //if(j_msg_rcv["btn_up"] == "HIGH")
+            if(*engine->input->btn_up == "HIGH")
             {
                 if(mode == BASE)
                 {
@@ -113,7 +122,8 @@ int MiniGame::play_resistanceGame() {
                 }
             }
 
-            if(j_msg_rcv["btn_left"] == "HIGH")
+            //if(j_msg_rcv["btn_left"] == "HIGH")
+            if(*engine->input->btn_left == "HIGH")
             {
                 if(mode == BASE)
                     mode = MULT;
@@ -121,14 +131,16 @@ int MiniGame::play_resistanceGame() {
                     mode = BASE;
             }
 
-            if(j_msg_rcv["btn_right"] == "HIGH")
+            //if(j_msg_rcv["btn_right"] == "HIGH")
+            if(*engine->input->btn_right == "HIGH")
             {
                 if(mode == BASE)
                     mode = MULT;
                 if(mode == MULT)
                     mode = BASE;
             }
-            if(j_msg_rcv["btn_quit"] == "HIGH")
+            //if(j_msg_rcv["btn_quit"] == "HIGH")
+            if(*engine->input->btn_select == "HIGH")
             {
                 break;
             }
@@ -145,14 +157,20 @@ int MiniGame::play_resistanceGame() {
             //cin >> wait;
             while(1)
             {
-                if(!RcvFromSerial(arduino, raw_msg)){
+                //if(!RcvFromSerial(arduino, raw_msg)){
+                if(engine.RcvFromSerial(engine->arduino, raw_msg)){
                     std::cerr << "Erreur lors de la reception du message. " << std::endl;
                 }
+                //if(raw_msg.size()>0){
                 if(raw_msg.size()>0){
-                    j_msg_rcv = json::parse(raw_msg);
-                    std::cout << "Message de l'Arduino: " << j_msg_rcv << std::endl;
+                    engine->j_msg_rcv = json::parse(raw_msg);
+                    std::cout << "Message de l'Arduino: " << engine->j_msg_rcv << std::endl;
                 }
-                if(j_msg_rcv["btn_quit"] == "HIGH")
+
+                engine.updateComponents(j_msg_rcv);
+
+                //if(j_msg_rcv["btn_quit"] == "HIGH")
+                if(*engine->input->btn_select == "HIGH")
                 {
                     break;
                 }
@@ -165,4 +183,3 @@ int MiniGame::play_resistanceGame() {
     }
     
 }
-
